@@ -1,0 +1,15 @@
+<p>
+  Timer 1: {{ timer$ | async }}
+</p>
+
+<p *ngIf="timer$ | async as timer">
+  Timer 2: {{ timer }}<br>
+  Timer 3: {{ timer }}
+</p>
+
+<p *ngIf="{
+  timer: timer$ | async
+} as state">
+  Timer 4: {{ state.timer }}<br>
+  Timer 5: {{ state.timer }}
+</p>
