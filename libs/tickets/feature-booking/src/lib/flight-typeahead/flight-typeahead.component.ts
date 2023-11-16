@@ -15,22 +15,12 @@ import { Observable, Subject, catchError, debounceTime, distinctUntilChanged, fi
   templateUrl: './flight-typeahead.component.html',
   styleUrls: ['./flight-typeahead.component.css'],
 })
-export class FlightTypeaheadComponent /* implements OnDestroy  */{
+export class FlightTypeaheadComponent {
   private flightService = inject(FlightService);
 
   protected control = new FormControl('', { nonNullable: true });
   protected flights$ = this.initFlightsStream();
   protected loading = false;
-
-  private destroy$ = new Subject<void>();
-  private takeUntilDestroyed = takeUntilDestroyed;
-
-  constructor() {
-    timer(0, 1_000).pipe(
-      // takeUntil(this.destroy$),
-      this.takeUntilDestroyed()
-    ).subscribe(console.log);
-  }
 
   initFlightsStream(): Observable<Flight[]> {
     /**
@@ -58,8 +48,4 @@ export class FlightTypeaheadComponent /* implements OnDestroy  */{
       tap(() => this.loading = false)
     );
   }
-
-  /* ngOnDestroy(): void {
-    this.destroy$.next();
-  } */
 }
