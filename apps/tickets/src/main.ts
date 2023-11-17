@@ -16,7 +16,9 @@ import { APP_ROUTES } from './app/app.routes';
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(),
-    provideRouter(APP_ROUTES, withPreloading(PreloadAllModules)),
+    provideRouter(APP_ROUTES,
+      withPreloading(PreloadAllModules)
+    ),
     importProvidersFrom(MatDialogModule),
     provideStore(),
     provideEffects(),
