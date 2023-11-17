@@ -1,9 +1,12 @@
 
 import { createActionGroup, createFeature, createReducer, createSelector, emptyProps, on, props, provideState } from "@ngrx/store";
+import { Actions, createEffect, ofType, provideEffects } from "@ngrx/effects";
 import { Flight } from "../entities/flight";
-import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
+import { EnvironmentProviders, Injectable, inject, makeEnvironmentProviders } from "@angular/core";
 import { FlightTicket } from "../entities/flight-ticket";
 import { Passenger } from "../entities/passenger";
+import { FlightService } from "../infrastructure/flight.service";
+import { map, switchMap } from "rxjs";
 
 // Just store ticketIds instead of tickets
 export type PassengerState = Omit<Passenger, 'tickets'> & {
@@ -53,6 +56,7 @@ export const initialTicketsState: TicketsState = {
 export const ticketsActions = createActionGroup({
   source: 'tickets',
   events: {
+    'flights load': props<{ from: string; to: string }>(),
     'flights loaded': props<{ flights: Flight[] }>(),
     'flight update': props<{ flight: Flight }>(),
     'clear flights': emptyProps,
@@ -91,8 +95,39 @@ export const selectPassengersWithTickets = createSelector(
     })
 );
 
+@Injectable({
+  providedIn: 'root'
+})
+export class TicketsEffect {
+  private actions$ = inject(Actions);
+  private flightService = inject(FlightService);
+
+  loadFlights$ = createEffect(
+    /**
+     * Stream 1: Store Actions
+     *  - Trigger
+     *  - State Provider: from, to
+     */
+    () => this.actions$.pipe(
+      // Filtering: Flights load
+      ofType(ticketsActions.flightsLoad),
+      /**
+       * Stream 2: Backend API Call
+       *  - State Provider: Flights
+       */
+      switchMap(action => this.flightService.find(
+        action.from,
+        action.to
+      )),
+      // Transformation: Flights -> Action Flights loaded
+      map(flights => ticketsActions.flightsLoaded({ flights }))
+    )
+  );
+}
+
 export function provideTicketsFeature(): EnvironmentProviders {
   return makeEnvironmentProviders([
-    provideState(ticketsFeature)
+    provideState(ticketsFeature),
+    provideEffects([TicketsEffect])
   ]);
 }
