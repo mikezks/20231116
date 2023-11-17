@@ -5,6 +5,8 @@ import { FlightService } from './flight.service';
 
 @Injectable()
 export class DummyFlightService implements FlightService {
+  flightCount$: Observable<number> = of(0);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findById(id: string): Observable<Flight> {
     const date = new Date().toISOString();

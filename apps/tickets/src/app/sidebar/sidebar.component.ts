@@ -1,10 +1,15 @@
-import { Component } from '@angular/core';
+import { AsyncPipe, NgIf } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FlightService } from '@flight-demo/tickets/domain';
 
 @Component({
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [NgIf, AsyncPipe, RouterLink, RouterLinkActive],
   selector: 'app-sidebar-cmp',
   templateUrl: 'sidebar.component.html',
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  private flightService = inject(FlightService);
+  protected flightCount$ = this.flightService.flightCount$;
+}
